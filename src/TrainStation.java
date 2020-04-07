@@ -4,6 +4,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -17,6 +20,9 @@ import com.mongodb.*;
 import com.mongodb.client.*;
 import org.bson.Document;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -24,20 +30,50 @@ import java.util.Scanner;
 public class TrainStation extends Application{
     private Passenger[] waitingRoom;
     private PassengerQueue trainQueue;
-
+    private List<List<String>> passengerList = new ArrayList<>();
 
     private void addingToQueue(Stage window){
-        MongoClient myclient = MongoClients.create();
-        MongoDatabase myDB = myclient.getDatabase("cwIntegration");
-        MongoCollection<Document> myCollection = myDB.getCollection("bookingDetails");
 
-        FindIterable<Document> findIterable = myCollection.find(and(eq("details","14"),eq("details","s")));
-        for (Document document: findIterable){
-            List<String> list = (List<String>) document.get("details");
-            System.out.println(list.get(0));
-        }
+        AnchorPane root = new AnchorPane();
+        window.setScene(new Scene(root, 750, 750));
+        window.setTitle("Add a passenger to the train queue");
+        DatePicker datePicker = new DatePicker();
+        datePicker.setValue(LocalDate.now());
+        Label datePickerLabel = new Label("Date");
+        datePicker.setLayoutX(65);
+        datePicker.setLayoutY(80);
+        datePickerLabel.setLayoutX(20);
+        datePickerLabel.setLayoutY(85);
 
-        selector(window);
+
+
+        datePicker.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                LocalDate date = datePicker.getValue();
+                String formattedDate = date.format(formatter);
+
+                MongoClient myclient = MongoClients.create();
+                MongoDatabase myDB = myclient.getDatabase("cwIntegration");
+                MongoCollection<Document> myCollection = myDB.getCollection("bookingDetails");
+
+
+                FindIterable<Document> findIterable = myCollection.find(eq("details",formattedDate));
+                int i =0;
+                for (Document document: findIterable){
+                    List<String> list = (List<String>) document.get("details");
+                    passengerList.add(list);
+                    System.out.println(passengerList.get(i));
+                    i++;
+                }
+            }
+        });
+
+        root.getChildren().addAll(datePicker,datePickerLabel);
+        window.show();
+
+        //selector(window);
     }
 
     private String menu(){
