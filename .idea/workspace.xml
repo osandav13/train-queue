@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bfb03f63-0387-4c51-9e6d-771596ff4b12" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Passenger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Passenger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PassengerQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PassengerQueue.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/TrainStation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TrainStation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train queue.iml" beforeDir="false" afterPath="$PROJECT_DIR$/train queue.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,11 +30,25 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../pp2 cw/mongo jar/mongodb-driver-sync-3.12.2.jar!/" />
     <property name="project.structure.last.edited" value="Modules" />
-    <property name="project.structure.proportion" value="0.0" />
-    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+  </component>
+  <component name="RunManager">
+    <configuration name="TrainStation" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="TrainStation" />
+      <module name="train queue" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.TrainStation" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ServiceViewManager">
     <option name="viewStates">
@@ -72,5 +84,33 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="1245" y="260" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1586079874017" />
+    <state x="1042" y="323" key="FileChooserDialogImpl" timestamp="1586233874182">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="1042" y="323" key="FileChooserDialogImpl/0.0.1920.1080@0.0.1920.1080" timestamp="1586233874182" />
+    <state width="914" height="295" key="GridCell.Tab.0.bottom" timestamp="1586255232368">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="914" height="295" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1586255232368" />
+    <state width="914" height="295" key="GridCell.Tab.0.center" timestamp="1586255232367">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="914" height="295" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1586255232367" />
+    <state width="914" height="295" key="GridCell.Tab.0.left" timestamp="1586255232367">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="914" height="295" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1586255232367" />
+    <state width="914" height="295" key="GridCell.Tab.0.right" timestamp="1586255232367">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="914" height="295" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1586255232367" />
+    <state x="742" y="143" key="SettingsEditor" timestamp="1586238126214">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="742" y="143" key="SettingsEditor/0.0.1920.1080@0.0.1920.1080" timestamp="1586238126214" />
+    <state x="0" y="0" key="com.intellij.ide.util.TipDialog" timestamp="1586220955826">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="0" y="0" key="com.intellij.ide.util.TipDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1586220955826" />
   </component>
 </project>
