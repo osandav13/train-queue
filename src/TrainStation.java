@@ -18,6 +18,7 @@ import com.mongodb.*;
 import com.mongodb.client.*;
 import org.bson.Document;
 
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -25,7 +26,7 @@ import java.util.*;
 
 public class TrainStation extends Application{
     private final int NUM_OF_PASSENGERS = 42;
-    private Passenger[] waitingRoom = new Passenger[NUM_OF_PASSENGERS];
+    private List<Passenger> waitingRoom = new ArrayList<>();
     private Button[] buttonsArray = new Button[NUM_OF_PASSENGERS];
     private int passengerCounter;
     private int gapBetweenWindowAndButtonX = 20;
@@ -65,17 +66,26 @@ public class TrainStation extends Application{
             comboboxLable2.setLayoutY(190);
 
             ListView<String> passengerListView = new ListView<>();
-            passengerListView.setMaxHeight(150);
+            passengerListView.setMaxHeight(200);
             passengerListView.setLayoutX(450);
             passengerListView.setLayoutY(80);
 
             Button addToWaitingRoom = new Button("Add to waiting room");
             addToWaitingRoom.setLayoutX(500);
-            addToWaitingRoom.setLayoutY(240);
+            addToWaitingRoom.setLayoutY(280);
 
             Button addToQueue = new Button("Add to queue");
             addToQueue.setLayoutX(200);
             addToQueue.setLayoutY(700);
+
+            ListView<String> queueListView = new ListView<>();
+            queueListView.setMaxHeight(200);
+            queueListView.setLayoutX(450);
+            queueListView.setLayoutY(340);
+
+            Button done = new Button("Done");
+            done.setLayoutY(600);
+            done.setLayoutX(600);
 
             for( int buttonNum = 0; buttonNum < NUM_OF_PASSENGERS; buttonNum++){
                 buttonsArray[buttonNum] = new Button("" + (buttonNum + 1));
@@ -136,7 +146,7 @@ public class TrainStation extends Application{
                         passenger.setName(passengerList.get(recordIndex)[2]);
                         passenger.setNicNumber(passengerList.get(recordIndex)[3]);
                         passengerListView.getItems().remove(recordIndex);
-                        waitingRoom[passengerCounter] = passenger;
+                        waitingRoom.add(passenger);
                         seatNumberList.add(Integer.parseInt(passenger.getSeatNumber()));
                         int buttonIndex = Integer.parseInt(passenger.getSeatNumber()) - 1;
                         if (passengerCounter % 10 == 0){
@@ -157,43 +167,185 @@ public class TrainStation extends Application{
                     //System.out.println(Arrays.toString(waitingRoom));
                 }
             });
-            /*
+
             addToQueue.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
+                    addToWaitingRoom.setDisable(true);
+                    Passenger temp;
+                    for (int i = 0; i < waitingRoom.size() - 1; i++) {
+                        for (int j = 0; j < waitingRoom.size() - 1 - i; j++) {
+                                int number1 = Integer.parseInt(waitingRoom.get(j).getSeatNumber()) ;
+                                int number2 = Integer.parseInt(waitingRoom.get(j + 1).getSeatNumber()) ;
+                                if ( number1 > number2) {
+                                    temp = waitingRoom.get(j);
+                                    waitingRoom.set(j,waitingRoom.get(j+1));
+                                    waitingRoom.set(j+1,temp);
+                                }
+                            }
+                        }
+                    /*for(Passenger passenger: waitingRoom){
+                        System.out.println(passenger.getName() + " " + passenger.getSeatNumber());
+                    }*/
+                    int randomNumOfPassengers = (int)(Math.random() * 6 +1);
+                    int numOfPassengersInWaitingRoom = waitingRoom.size();
+                    System.out.println("number of passenger " + randomNumOfPassengers);
+                    System.out.println("waiting room size " + numOfPassengersInWaitingRoom);
+                    if (randomNumOfPassengers <= numOfPassengersInWaitingRoom){
+                        while(true){
+                            if (randomNumOfPassengers == 0){
+                                break;
+                            }
+                            System.out.println("before " + waitingRoom);
+                            Passenger currentPassenger = waitingRoom.get(0);
+                            if (!trainQueue.isFull()){
+                                trainQueue.add(currentPassenger);
+                                waitingRoom.remove(0);
+                                buttonsArray[Integer.parseInt(currentPassenger.getSeatNumber())-1].setVisible(false);
+                                queueListView.getItems().add(currentPassenger.getName() + "  " +
+                                        currentPassenger.getNicNumber()+ "  " + currentPassenger.getSeatNumber());
+                            }
+                            System.out.println( "after " + waitingRoom);
+                            randomNumOfPassengers-=1;
+                        }
+                    }else {
+                        System.out.println("random number is too high try again");
+                    }/*for (Passenger item : trainQueue.queueArray){
+                        if (item != null){
+                            System.out.println(item.getName() + " " + item.getSeatNumber());
+                        }
+                    }*/
+                }
+
+                    /*
+                    for (int i = 0; i < waitingRoom.size() - 1; i++) {
+                        for (int j = 0; j < waitingRoom.size() - 1 - i; j++) {
+                            // comparing adjacent strings
+                            if (waitingRoom[j + 1] != null && waitingRoom[j] != null){
+                                int number1 = Integer.parseInt(waitingRoom[j].getSeatNumber()) ;
+                                int number2 = Integer.parseInt(waitingRoom[j + 1].getSeatNumber()) ;
+                                if ( number1 > number2) {
+                                    temp = waitingRoom[j];
+                                    waitingRoom[j] = waitingRoom[j + 1];
+                                    waitingRoom[j + 1] = temp;
+                                }
+                            }
+                        }
+                    }*/
+                    /*
+                    int numOfPassengers = 2;//(int)(Math.random() * 6 +1);
+                    System.out.println("number of passenger " + numOfPassengers);
+                    for (int i =0;i < numOfPassengers;i++){
+                        System.out.println("before " + Arrays.toString(waitingRoom));
+                        Passenger currentPassenger = waitingRoom[i];
+                        if (currentPassenger == null){
+                            numOfPassengers+=1;
+                        }else {
+                            trainQueue.add(currentPassenger);
+                            buttonsArray[Integer.parseInt(currentPassenger.getSeatNumber())-1].setLayoutY(230);
+                            buttonsArray[Integer.parseInt(currentPassenger.getSeatNumber())-1].setLayoutX(350);
+                            waitingRoom[i] = null;
+                            System.out.println( "after " + Arrays.toString(waitingRoom));
+                            //System.out.println(trainQueue.queueArray[]);
+                        }
+
+                    }
+
+
+                    for (Passenger item : trainQueue.queueArray){
+                        if (item != null){
+                            System.out.println(item.getName() + " " + item.getSeatNumber());
+                        }
+                    }*/
+                    /*
                     int numOfPassengers = (int)(Math.random() * 6 +1);
+                    System.out.println("number of passenger " + numOfPassengers);
                     for (int i =0; i < numOfPassengers;i++){
                         int smallestNumber = Collections.min(seatNumberList);
                         System.out.println("smallest number is " +smallestNumber);
-                        System.out.println("number of passenger " + numOfPassengers);
                         for (int j=0;j < waitingRoom.length;j++){
-                           if (waitingRoom[j] == null){
+                            if (waitingRoom[j] == null){
                                 System.out.println("i am null");
-                                continue;
                             }else {
-                            System.out.println(waitingRoom[j].getSeatNumber());
+                                System.out.println(waitingRoom[j].getSeatNumber());
                                 int seatNumber = Integer.parseInt(waitingRoom[j].getSeatNumber());
                                 if(seatNumber == smallestNumber) {
                                     trainQueue.add(waitingRoom[j]);
                                     buttonsArray[seatNumber].setVisible(false);
-                                    // System.out.println(i);
+                                    System.out.println("created");
                                     seatNumberList.remove(smallestNumber);
                                     //waitingRoom[j] = null;
                                 }
                             }
                         }
-                    }
-                }
-            });*/
+                    }*/
+
+            });
             datePicker.setOnAction(loadPassengers);
             arrivingStation.setOnAction(loadPassengers);
             leavingStation.setOnAction(loadPassengers);
 
-            root.getChildren().addAll(datePicker,leavingStation,arrivingStation,addToQueue);
+            root.getChildren().addAll(datePicker,leavingStation,arrivingStation,addToQueue,queueListView,done);
             root.getChildren().addAll(datePickerLabel,comboboxLable1,comboboxLable2);
             window.show();
 
-            //selector(window);
+            done.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    window.close();
+                    selector(window);
+                }
+            });
+    }
+
+    private void viewQueue(Stage window){
+        AnchorPane root = new AnchorPane();
+        window.setScene(new Scene(root, 750, 750));
+        window.setTitle("Queue");
+
+        ListView<String> passengerListView = new ListView<>();
+        passengerListView.setMaxHeight(200);
+        passengerListView.setLayoutX(50);
+        passengerListView.setLayoutY(80);
+
+        for (Passenger passenger: waitingRoom){
+            String passengerName =passenger.getName();
+            String passengerNic =passenger.getNicNumber();
+            passengerListView.getItems().add(passengerName + "  " + passengerNic  + " " + passenger.getSeatNumber());
+        }
+
+        ListView<String> queueListView = new ListView<>();
+        queueListView.setMaxHeight(200);
+        queueListView.setLayoutX(450);
+        queueListView.setLayoutY(80);
+
+        Button done = new Button("Done");
+        done.setLayoutY(600);
+        done.setLayoutX(600);
+
+        Passenger[] passengersInQueue = trainQueue.getQueueArray();
+        for (Passenger passenger : passengersInQueue){
+            if (passenger != null){
+                String passengerName =passenger.getName();
+                String passengerNic =passenger.getNicNumber();
+                queueListView.getItems().add(passengerName + "  " + passengerNic + " " + passenger.getSeatNumber());
+            }
+        }
+
+        done.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                window.close();
+                selector(window);
+            }
+        });
+
+        root.getChildren().addAll(passengerListView,queueListView,done);
+        window.show();
+    }
+
+    private void deleteFromQueue(){
+
     }
 
     private String menu(){
@@ -222,7 +374,7 @@ public class TrainStation extends Application{
                     isInputCorrect = true;
                     break;
                 case "v":
-                    System.out.println("v not yet implemented");
+                    viewQueue(primaryStage);
                     isInputCorrect = true;
                     break;
                 case "d":

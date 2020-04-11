@@ -5,6 +5,10 @@ public class PassengerQueue {
     private int maxStayInQueue;
     private int maxLength;
 
+    public Passenger[] getQueueArray() {
+        return queueArray;
+    }
+
     public PassengerQueue(int maxLength){
         super();
         this.maxLength = maxLength;
@@ -31,7 +35,7 @@ public class PassengerQueue {
     }
 
     public boolean isEmpty(){
-        if(first == 0 && last == 0){
+        if(first == last){
             return true;
         }else{
             return false;
