@@ -1,7 +1,8 @@
 public class PassengerQueue {
-    private Passenger[] queueArray;
+    private Passenger[] queueArray = new Passenger[21];
     private int first;
     private int last;
+    private int sizeOfQueue;
     private int maxStayInQueue;
     private int maxLength;
 
@@ -9,33 +10,31 @@ public class PassengerQueue {
         return queueArray;
     }
 
-    public PassengerQueue(int maxLength){
-        super();
-        this.maxLength = maxLength;
-        this.queueArray = new Passenger[maxLength];
-    }
-
     public void add(Passenger next){
         if (isFull()){
-            System.out.println("Queue is at max capacity");
+            return;
         }else {
-            last = (last + 1) % maxLength;
             this.queueArray[last] = next;
+            last = (last + 1) % queueArray.length;
+            sizeOfQueue = sizeOfQueue + 1;
         }
     }
 
     public Passenger remove() throws Exception {
         if (isEmpty()){
-            throw new Exception("Queue is empty");
+            throw new Exception();
         }else {
             Passenger passenger = this.queueArray[first];
-            first = (first + 1) % maxLength;
+            first = (first + 1) % queueArray.length;
+            sizeOfQueue = sizeOfQueue - 1;
+            System.out.println("first is: " + first);
+            System.out.println("last is: " + last);
             return passenger;
         }
     }
 
     public boolean isEmpty(){
-        if(first == last){
+        if(sizeOfQueue == 0){
             return true;
         }else{
             return false;
@@ -43,7 +42,7 @@ public class PassengerQueue {
     }
 
     public boolean isFull(){
-        if (first == ((last + 1) % maxLength)){
+        if (sizeOfQueue == queueArray.length){
             return true;
         }else {
             return false;

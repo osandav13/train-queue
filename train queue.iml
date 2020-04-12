@@ -7,28 +7,28 @@
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../pp2 cw/mongo jar/bson-3.12.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../pp2 cw/mongo jar/bson-3.12.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../pp2 cw/mongo jar/mongodb-driver-core-3.12.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../pp2 cw/mongo jar/mongodb-driver-core-3.12.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../pp2 cw/mongo jar/mongodb-driver-sync-3.12.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../pp2 cw/mongo jar/mongodb-driver-sync-3.12.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
