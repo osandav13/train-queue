@@ -216,7 +216,7 @@ public class TrainStation extends Application{
                             randomNumOfPassengers-=1;
                         }
                     }else {
-                        System.out.println("random number is too high try again");
+                        System.out.println("waiting room is empty");
                     }/*for (Passenger item : trainQueue.queueArray){
                         if (item != null){
                             System.out.println(item.getName() + " " + item.getSeatNumber());
@@ -441,32 +441,74 @@ public class TrainStation extends Application{
                             }
                         }
                     }
-                    for (Passenger passenger: waitingRoom){
-                        int randomNumOfPassengers = (int)(Math.random() * 6 +1);
-                        int numOfPassengersInWaitingRoom = waitingRoom.size();
-                        System.out.println("number of passenger " + randomNumOfPassengers);
-                        System.out.println("waiting room size " + numOfPassengersInWaitingRoom);
-                        if (randomNumOfPassengers <= numOfPassengersInWaitingRoom){
-                            while (randomNumOfPassengers != 0) {
-                                int processingDelay = delayGenerator();
-                                System.out.println("before " + waitingRoom);
-                                if (!trainQueue.isFull()) {
-                                    passenger.setSecondsInQueue(processingDelay);
-                                    trainQueue.add(passenger);
-                                    waitingRoom.remove(0);
-                                } else {
-                                    System.out.println("Queue is at max capacity");
+                    int inheritedDelay = 0;
+                    boolean queueEmpty = false;
+                    while (!queueEmpty){
+                        while (waitingRoom.size() != 0){
+                            int randomNumOfPassengers = (int)(Math.random() * 6 +1);
+                            int numOfPassengersInWaitingRoom = waitingRoom.size();
+                            System.out.println("number of passenger " + randomNumOfPassengers);
+                            System.out.println("waiting room size " + numOfPassengersInWaitingRoom);
+                            if (randomNumOfPassengers <= numOfPassengersInWaitingRoom){
+                                while (randomNumOfPassengers != 0) {
+                                    Passenger passenger = waitingRoom.get(0);
+                                    int processingDelay = delayGenerator();
+                                    System.out.println("delay is " + processingDelay);
+                                    //System.out.println("before " + waitingRoom);
+                                    if (!trainQueue.isFull()) {
+                                        passenger.setProcessingDelay(processingDelay);
+                                        passenger.setSecondsInQueue(inheritedDelay + processingDelay);
+                                        inheritedDelay += processingDelay;
+                                        trainQueue.add(passenger);
+                                        waitingRoom.remove(0);
+                                    } else {
+                                        System.out.println("Queue is at max capacity");
+                                    }
+                                    //System.out.println("after " + waitingRoom);
+                                    randomNumOfPassengers -= 1;
                                 }
-                                System.out.println("after " + waitingRoom);
-                                randomNumOfPassengers -= 1;
+                                try {
+                                    Passenger boardedPassenger = trainQueue.remove();
+                                    inheritedDelay -= boardedPassenger.getProcessingDelay();
+                                    boardedPassengers.add(boardedPassenger);
+                                    System.out.println(boardedPassenger.getName() + " in seat number "+ boardedPassenger.getSeatNumber() + " has boarded the train" );
+                                } catch (Exception e) {
+                                    System.out.println("this shouldnt print");
+                                }
+                            }else {
+                                System.out.println("random number is too high try again");
                             }
-                        }else {
-                            System.out.println("random number is too high try again");
                         }
-
+                        try {
+                            Passenger boardedPassenger = trainQueue.remove();
+                            boardedPassengers.add(boardedPassenger);
+                            System.out.println(boardedPassenger.getName() + " in seat number "+ boardedPassenger.getSeatNumber() + " has boarded the train" );
+                        } catch (Exception e) {
+                            System.out.println("queue is empty");
+                        }
+                        queueEmpty =trainQueue.isEmpty();
                     }
+                    int totalTime =0;
+                    int minimumTime = 1000000000;
+                    int maximumTime = 0;
+                    for (Passenger passenger : boardedPassengers){
+                        totalTime += passenger.getSecondsInQueue();
+                        System.out.println(passenger.getName() +" " +passenger.getSecondsInQueue());
+
+                        if (minimumTime > passenger.getSecondsInQueue()){
+                            minimumTime = passenger.getSecondsInQueue();
+                        }if (maximumTime < passenger.getSecondsInQueue()){
+                            maximumTime = passenger.getSecondsInQueue();
+                        }
+                    }
+                    System.out.println("maximum waiting time: " + maximumTime);
+                    System.out.println("minimum waiting time: " + minimumTime);
+                    System.out.println("average waiting time: " + totalTime / boardedPassengers.size());
+
+
                 }
             });
+
 
             close.setOnAction(new EventHandler<ActionEvent>() {
                 @Override

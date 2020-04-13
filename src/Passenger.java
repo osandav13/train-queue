@@ -4,6 +4,15 @@ public class Passenger {
     private String seatNumber;
     private String nicNumber;
     private int secondsInQueue;
+    private int processingDelay;
+
+    public int getProcessingDelay() {
+        return processingDelay;
+    }
+
+    public void setProcessingDelay(int processingDelay) {
+        this.processingDelay = processingDelay;
+    }
 
     public String getSeatNumber() {
         return seatNumber;
