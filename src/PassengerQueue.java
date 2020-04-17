@@ -89,7 +89,7 @@ public class PassengerQueue {
     }
 
     public float getAverageStay() {
-        return totalStayInQueue/boardedNumOfPassengers;
+        return (float) totalStayInQueue/boardedNumOfPassengers;
     }
 
 }
