@@ -71,7 +71,7 @@ public class PassengerQueue {
     public List<Passenger> display(){
         List<Passenger> list = new ArrayList<>();
         for (int i=0;i < sizeOfQueue;i++){
-            list.add(queueArray[(first +i )% queueArray.length]);
+            list.add(queueArray[(first + i )% queueArray.length]);
         }
         return list;
     }
