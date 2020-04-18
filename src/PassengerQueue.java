@@ -10,12 +10,7 @@ public class PassengerQueue {
     private int minStayInQueue = 1000000000;
     private int boardedNumOfPassengers;
     private int totalStayInQueue;
-    //private float averageStayInQueue;
     private int maxLength;
-
-    public Passenger[] getQueueArray() {
-        return queueArray;
-    }
 
     public void add(Passenger next){
         if (isFull()){
@@ -33,23 +28,19 @@ public class PassengerQueue {
         }
     }
 
-    public Passenger remove() throws Exception {
-        if (isEmpty()){
-            throw new Exception();
-        }else {
-            Passenger passenger = this.queueArray[first];
-            if (passenger.getSecondsInQueue() > maxStayInQueue){
-                maxStayInQueue = passenger.getSecondsInQueue();
-            }if(passenger.getSecondsInQueue() < minStayInQueue){
-                minStayInQueue = passenger.getSecondsInQueue();
-            }
-            first = (first + 1) % queueArray.length;
-            sizeOfQueue = sizeOfQueue - 1;
-            boardedNumOfPassengers +=1;
-            System.out.println("first is: " + first);
-            System.out.println("last is: " + last);
-            return passenger;
+    public Passenger remove(){
+        Passenger passenger = this.queueArray[first];
+        if (passenger.getSecondsInQueue() > maxStayInQueue){
+            maxStayInQueue = passenger.getSecondsInQueue();
+        }if(passenger.getSecondsInQueue() < minStayInQueue){
+            minStayInQueue = passenger.getSecondsInQueue();
         }
+        first = (first + 1) % queueArray.length;
+        sizeOfQueue = sizeOfQueue - 1;
+        boardedNumOfPassengers +=1;
+        System.out.println("first is: " + first);
+        System.out.println("last is: " + last);
+        return passenger;
     }
 
     public boolean isEmpty(){
@@ -68,7 +59,7 @@ public class PassengerQueue {
         }
     }
 
-    public List<Passenger> display(){
+    public List<Passenger> getPassengersInQueue(){
         List<Passenger> list = new ArrayList<>();
         for (int i=0;i < sizeOfQueue;i++){
             list.add(queueArray[(first + i )% queueArray.length]);
