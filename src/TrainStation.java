@@ -14,6 +14,8 @@ import com.mongodb.client.*;
 import org.bson.Document;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -25,8 +27,10 @@ public class TrainStation extends Application{
     private PassengerQueue trainQueue = new PassengerQueue();
     private List<String[]> passengerList = new ArrayList<>();
     //private List<Integer> seatNumberList = new ArrayList<>();
-    private Passenger[] boardedPassengers = new Passenger[NUM_OF_PASSENGERS];
-    //private List<Passenger> boardedPassengers = new ArrayList<>();
+    //private Passenger[] boardedPassengers = new Passenger[NUM_OF_PASSENGERS];
+    private List<Passenger> boardedPassengers = new ArrayList<>();
+    private String currentDepartingStation;
+    private String currentDate;
 
     private void bubbleSort(){
         Passenger temp;
@@ -137,6 +141,10 @@ public class TrainStation extends Application{
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate date = datePicker.getValue();
                     String formattedDate = date.format(formatter);
+                    currentDate = formattedDate;
+                    currentDepartingStation = leavingStation.getValue();
+                    System.out.println(currentDate);
+                    System.out.println(currentDepartingStation);
 
                     MongoClient myclient = MongoClients.create();
                     MongoDatabase myDB = myclient.getDatabase("cwIntegration");
@@ -145,27 +153,27 @@ public class TrainStation extends Application{
                     passengerListView.getItems().clear();
                     passengerList.clear();
                     waitingRoom.clear();
+                    boardedPassengers.clear();
                     for (int i = 0;i < trainQueue.getPassengersInQueue().size();i++){
                         trainQueue.remove();
                     }
-                    for (int i=0;i < boardedPassengers.length;i++){
-                        if (boardedPassengers[i] != null){
-                            boardedPassengers[i] = null;
+                    if (leavingStation.getValue().equals(arrivingStation.getValue())){
+                        addToWaitingRoom.setDisable(true);
+                        System.out.println("Departing station and arriving station cannot be same");
+                    }else {
+                        addToWaitingRoom.setDisable(false);
+                        FindIterable<Document> findIterable = myCollection.find(and(eq("date",formattedDate),eq("arrivingStation",arrivingStation.getValue())));
+                        for (Document record: findIterable){
+                            String bookedDate = (String) record.get("date");
+                            String bookedSeat = (String) record.get("seat");
+                            String bookedName = (String) record.get("name");
+                            String bookedNicNum = (String) record.get("nicNumber");
+                            String bookedDepartingStation = (String) record.get("departingStation");
+                            String bookedArrivingStation = (String) record.get("arrivingStation");
+                            String[] bookingDetailsArray = {bookedDate,bookedSeat,bookedName,bookedNicNum,bookedDepartingStation,bookedArrivingStation};
+                            passengerList.add(bookingDetailsArray);
+                            passengerListView.getItems().add(bookedName + "    " + bookedNicNum + "    " + bookedSeat);
                         }
-                    }
-
-                    FindIterable<Document> findIterable = myCollection.find(and(eq("date",formattedDate),eq("arrivingStation",arrivingStation.getValue())));
-                    for (Document record: findIterable){
-                        String bookedDate = (String) record.get("date");
-                        String bookedSeat = (String) record.get("seat");
-                        String bookedName = (String) record.get("name");
-                        String bookedNicNum = (String) record.get("nicNumber");
-                        String bookedDepartingStation = (String) record.get("departingStation");
-                        String bookedArrivingStation = (String) record.get("arrivingStation");
-                        String[] bookingDetailsArray = {bookedDate,bookedSeat,bookedName,bookedNicNum,bookedDepartingStation,bookedArrivingStation};
-                        passengerList.add(bookingDetailsArray);
-
-                        passengerListView.getItems().add(bookedName + "    " + bookedNicNum + "    " + bookedSeat);
                     }
                 }
             };
@@ -182,6 +190,8 @@ public class TrainStation extends Application{
                         passenger.setSeatNumber(passengerList.get(recordIndex)[1]);
                         passenger.setName(passengerList.get(recordIndex)[2]);
                         passenger.setNicNumber(passengerList.get(recordIndex)[3]);
+                        passenger.setDate(passengerList.get(recordIndex)[0]);
+                        passenger.setDepartureStation(passengerList.get(recordIndex)[4]);
                         passengerListView.getItems().remove(recordIndex);
                         waitingRoom.add(passenger);
                         waitingListView.getItems().add(passenger.getName() + "    " + passenger.getNicNumber() + "    " + passenger.getSeatNumber());
@@ -235,7 +245,7 @@ public class TrainStation extends Application{
                     //for (Passenger passenger:trainQueue.getPassengersInQueue()){
                     if (!trainQueue.isEmpty()){
                         Passenger boardedPassenger = trainQueue.remove();
-                        boardedPassengers[Integer.parseInt(boardedPassenger.getSeatNumber())] = boardedPassenger;
+                        boardedPassengers.add(boardedPassenger);
                         queueListView.getItems().remove(boardedPassenger.getName() + "    " +
                                 boardedPassenger.getNicNumber()+ "    " + boardedPassenger.getSeatNumber());
                         System.out.println(boardedPassenger.getName() + " in seat number "+
@@ -300,14 +310,20 @@ public class TrainStation extends Application{
         boardedListView.setMaxHeight(250);
         boardedListView.setLayoutX(250);
         boardedListView.setLayoutY(400);
-
-        for (int i=0;i<NUM_OF_PASSENGERS;i++){
-            if (boardedPassengers[i] != null){
-                String passengerName = boardedPassengers[i].getName();
-                String passengerNic = boardedPassengers[i].getNicNumber();
-                String passengerSeat = boardedPassengers[i].getSeatNumber();
-                boardedListView.getItems().add(passengerSeat + "      " + passengerName  + "      " + passengerNic);
-            }else {
+        boolean hasBoarded;
+        for (int i=1;i <= NUM_OF_PASSENGERS;i++){
+            hasBoarded = false;
+            for (Passenger passenger : boardedPassengers){
+                int seatNumber = Integer.parseInt(passenger.getSeatNumber());
+                if (seatNumber == i){
+                    String passengerName = passenger.getName();
+                    String passengerNic = passenger.getNicNumber();
+                    String passengerSeat = passenger.getSeatNumber();
+                    boardedListView.getItems().add(passengerSeat + "      " + passengerName  + "      " + passengerNic);
+                    hasBoarded = true;
+                    break;
+                }
+            }if (!hasBoarded){
                 boardedListView.getItems().add(i + "    " + "empty");
             }
         }
@@ -338,16 +354,6 @@ public class TrainStation extends Application{
         String seatNum = null;
 
         Scanner deleteFromQueueInput = new Scanner(System.in);
-        /*do {
-            System.out.print("Enter the NIC number: ");
-            nicNum = deleteFromQueueInput.next();
-            if (nicNum.length() == 10){
-                isNicCorrect = true;
-            }else {
-                isNicCorrect = false;
-            }
-        }while (!isNicCorrect);*/
-
         do {
             try {
                 System.out.print("Enter the seat number: ");
@@ -391,12 +397,178 @@ public class TrainStation extends Application{
     }
 
     private void saveToDb(Stage window){
-        MongoClient myclient = MongoClients.create();
-        MongoDatabase myDB = myclient.getDatabase("cwIntegration");
-        MongoCollection<Document> myCollection = myDB.getCollection("queueData");
+        MongoClient myClient = MongoClients.create();
+        MongoDatabase myDb = myClient.getDatabase("cwIntegration");
+        MongoCollection<Document> myCollection = myDb.getCollection("queueData");
+        if (trainQueue.getPassengersInQueue().size() > 0){
+            List<Passenger> currentPassengers = trainQueue.getPassengersInQueue();
+            myCollection.deleteMany(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
 
-        myCollection.deleteMany(new Document());
+            for (Passenger queuePassenger : currentPassengers){
+                Document document = new Document("date",queuePassenger.getDate())
+                        .append("seat",queuePassenger.getSeatNumber())
+                        .append("name",queuePassenger.getName())
+                        .append("nicNumber",queuePassenger.getNicNumber())
+                        .append("departingStation",queuePassenger.getDepartureStation());
 
+                myCollection.insertOne(document);
+            }
+            FindIterable<Document> findIterable = myCollection.find(new Document());
+            for (Document document: findIterable){
+                System.out.println(document.toJson());
+            }
+        }else {
+            myCollection.deleteMany(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
+            System.out.println("There are no passengers in the Queue");
+        }
+
+        myCollection = myDb.getCollection("waitingRoomData");
+        if (waitingRoom.size() > 0){
+            myCollection.deleteMany(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
+
+            for (Passenger waitingRoomPassenger : waitingRoom){
+                Document document = new Document("date", waitingRoomPassenger.getDate())
+                        .append("seat", waitingRoomPassenger.getSeatNumber())
+                        .append("name", waitingRoomPassenger.getName())
+                        .append("nicNumber", waitingRoomPassenger.getNicNumber())
+                        .append("departingStation", waitingRoomPassenger.getDepartureStation());
+
+                myCollection.insertOne(document);
+            }
+            FindIterable<Document> findIterable = myCollection.find(new Document());
+            for (Document document: findIterable){
+                System.out.println(document.toJson());
+            }
+        }else {
+            myCollection.deleteMany(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
+            System.out.println("There are no passengers in the Waiting room");
+        }
+
+        myCollection = myDb.getCollection("boardedPassengerData");
+        if (boardedPassengers.size() > 0){
+            myCollection.deleteMany(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
+
+            for (Passenger boardedPassenger : boardedPassengers){
+                Document document = new Document("date", boardedPassenger.getDate())
+                        .append("seat", boardedPassenger.getSeatNumber())
+                        .append("name", boardedPassenger.getName())
+                        .append("nicNumber", boardedPassenger.getNicNumber())
+                        .append("departingStation", boardedPassenger.getDepartureStation());
+
+                myCollection.insertOne(document);
+            }
+            FindIterable<Document> findIterable = myCollection.find(new Document());
+            for (Document document: findIterable){
+                System.out.println(document.toJson());
+            }
+        }else {
+            myCollection.deleteMany(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
+            System.out.println("There are no boarded passengers");
+        }
+        selector(window);
+    }
+
+    private boolean dateValidator(String dateToValidate){
+        if(dateToValidate == null){
+            return false;
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateFormat.setLenient(false);
+        try {
+            //if not valid, it will throw ParseException
+            dateFormat.parse(dateToValidate);
+            currentDate = dateToValidate;
+            return true;
+        } catch (ParseException exception) {
+            System.out.println("You have entered a wrong date format");
+            return false;
+        }
+    }
+
+    private void loadFromDb(Stage window){
+        boolean isDateCorrect;
+        boolean isStationCorrect;
+        String inputDate;
+        String station;
+
+        Scanner input = new Scanner(System.in);
+        do {
+            System.out.print("Enter the Date(dd-mm-yyyy):");
+            inputDate = input.next();
+            isDateCorrect = dateValidator(inputDate);
+        }while (!isDateCorrect);
+        do {
+            System.out.print("Enter the departing station:");
+            station = input.next();
+            if (station.equals("Colombo") || station.equals("Badulla")){
+                currentDepartingStation = station;
+                isStationCorrect = true;
+            }else {
+                System.out.println("Enter the correct station");
+                isStationCorrect = false;
+            }
+        }while (!isStationCorrect);
+
+        if(waitingRoom.size() > 0 || trainQueue.getPassengersInQueue().size() > 0 || boardedPassengers.size() > 0){
+            while (!trainQueue.isEmpty()) {
+                trainQueue.remove();
+            }
+            waitingRoom.clear();
+            boardedPassengers.clear();
+        }
+        MongoClient myClient = MongoClients.create();
+        MongoDatabase myDb = myClient.getDatabase("cwIntegration");
+
+        MongoCollection<Document> myCollection = myDb.getCollection("queueData");
+        FindIterable<Document> queueTable = myCollection.find(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
+        for (Document queuePassenger : queueTable){
+            Passenger passenger = new Passenger();
+            passenger.setSeatNumber((String) queuePassenger.get("seat"));
+            passenger.setName((String) queuePassenger.get("name"));
+            passenger.setNicNumber((String) queuePassenger.get("nicNumber"));
+            passenger.setDate((String) queuePassenger.get("date"));
+            passenger.setDepartureStation((String) queuePassenger.get("departingStation"));
+
+            trainQueue.add(passenger);
+        }
+        myCollection = myDb.getCollection("waitingRoomData");
+        FindIterable<Document> waitingRoomTable = myCollection.find(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
+        for (Document waitingRoomPassenger : waitingRoomTable){
+            Passenger passenger = new Passenger();
+            passenger.setSeatNumber((String) waitingRoomPassenger.get("seat"));
+            passenger.setName((String) waitingRoomPassenger.get("name"));
+            passenger.setNicNumber((String) waitingRoomPassenger.get("nicNumber"));
+            passenger.setDate((String) waitingRoomPassenger.get("date"));
+            passenger.setDepartureStation((String) waitingRoomPassenger.get("departingStation"));
+
+            waitingRoom.add(passenger);
+        }
+        myCollection = myDb.getCollection("boardedPassengerData");
+        FindIterable<Document> boardedPassengerTable = myCollection.find(and(eq("date",currentDate),eq("departingStation",currentDepartingStation)));
+        for (Document boardedPassenger : boardedPassengerTable){
+            Passenger passenger = new Passenger();
+            passenger.setSeatNumber((String) boardedPassenger.get("seat"));
+            passenger.setName((String) boardedPassenger.get("name"));
+            passenger.setNicNumber((String) boardedPassenger.get("nicNumber"));
+            passenger.setDate((String) boardedPassenger.get("date"));
+            passenger.setDepartureStation((String) boardedPassenger.get("departingStation"));
+
+            boardedPassengers.add(passenger);
+        }
+
+        for (Passenger details : trainQueue.getPassengersInQueue()) {
+            System.out.println("following data has been inserted to the booking system " + details.getName() + " " +
+                    details.getSeatNumber() + " " + details.getNicNumber() + " " + details.getDate()+ " " + details.getDepartureStation());
+        }
+        for (Passenger details : waitingRoom) {
+            System.out.println("following data has been inserted to the booking system " + details.getName() + " " +
+                    details.getSeatNumber() + " " + details.getNicNumber() + " " + details.getDate()+ " " + details.getDepartureStation());
+        }
+        for (Passenger details : boardedPassengers) {
+            System.out.println("following data has been inserted to the booking system " + details.getName() + " " +
+                    details.getSeatNumber() + " " + details.getNicNumber() + " " + details.getDate()+ " " + details.getDepartureStation());
+        }
+        selector(window);
     }
 
     private int delayGenerator(){
@@ -501,7 +673,7 @@ public class TrainStation extends Application{
                             try {
                                 Passenger boardedPassenger = trainQueue.remove();
                                 inheritedDelay -= boardedPassenger.getProcessingDelay();
-                                boardedPassengers[Integer.parseInt(boardedPassenger.getSeatNumber()) - 1] = boardedPassenger;
+                                boardedPassengers.add(boardedPassenger);
                                 System.out.println(boardedPassenger.getName() + " in seat number " + boardedPassenger.getSeatNumber() + " has boarded the train");
                             } catch (Exception e) {
                                 System.out.println("this shouldnt print");
@@ -512,7 +684,7 @@ public class TrainStation extends Application{
                     }
                     try {
                         Passenger boardedPassenger = trainQueue.remove();
-                        boardedPassengers[Integer.parseInt(boardedPassenger.getSeatNumber()) - 1] = boardedPassenger;
+                        boardedPassengers.add(boardedPassenger);
                         System.out.println(boardedPassenger.getName() + " in seat number " + boardedPassenger.getSeatNumber() + " has boarded the train");
                     } catch (Exception e) {
                         System.out.println("queue is empty");
@@ -598,11 +770,11 @@ public class TrainStation extends Application{
                     isInputCorrect = true;
                     break;
                 case "s":
-                    System.out.println("s not yet implemented");
+                    saveToDb(primaryStage);
                     isInputCorrect = true;
                     break;
                 case "l":
-                    System.out.println("l not yet implemented");
+                    loadFromDb(primaryStage);
                     isInputCorrect = true;
                     break;
                 case "r":
